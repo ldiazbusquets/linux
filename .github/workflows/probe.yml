@@ -1,0 +1,12 @@
+name: probe
+on: { push: { branches: [probe] } }
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for u in https://mirror.yandex.ru/archlinux32/ https://mirror.yandex.ru/archlinux32/archisos/ https://mirror.yandex.ru/archlinux32/i686/core/ https://mirror.datacenter.by/pub/archlinux32/ https://mirror.datacenter.by/pub/archlinux32/i686/core/ https://archlinux32.org/ https://mirror.archlinux32.org/ http://mirror.archlinux32.org/ https://www.archlinux32.org/download/ https://mirror.math.princeton.edu/pub/archlinux32/ https://ftp.halifax.rwth-aachen.de/archlinux32/ https://mirror.clarkson.edu/archlinux32/ https://archlinux32.mirror.wearetriple.com/ ; do
+            echo "=================== $u"; curl -sSL --max-time 25 "$u" | sed 's/<[^>]*>/ /g' | grep -v '^\s*$' | tail -40 || echo FAIL
+          done
+          echo "=========== mirrorlist"; curl -sSL --max-time 25 "https://archlinux32.org/mirrorlist/?country=all&protocol=https" | head -60 || true
+          apt-cache policy pacman-package-manager arch-install-scripts archlinux-keyring 2>/dev/null | head -20
