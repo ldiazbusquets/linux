@@ -5,7 +5,7 @@ Guided lessons live in the Lab: https://ldiazbusquets.github.io/lab/linux.html
 
 ## How it is built
 
-`.github/workflows/pages.yml` runs on every push (and monthly to refresh packages):
+`.github/workflows/pages.yml` runs on every push :
 
 1. `build/build-arch.sh` starts an `archlinux` container and runs `build/arch/make-root.sh`, which uses
    `pacstrap` against the [Arch Linux 32](https://archlinux32.org/) i686 repositories, adds a mkinitcpio hook
@@ -15,7 +15,9 @@ Guided lessons live in the Lab: https://ldiazbusquets.github.io/lab/linux.html
    content-addressed, zstd-compressed files in `arch/flat/`, fetched on demand by the browser.
 3. `build/state.mjs` boots it once in Node and saves `arch/state.bin.zst`, so visitors resume a booted machine.
 4. `build/test-page.mjs` opens the page in headless Chromium, runs commands, saves and restores.
-5. The site (this repo plus `arch/`) is deployed with GitHub Pages from Actions. The image is cached per month.
+5. The site (this repo plus `arch/`) is deployed with GitHub Pages from Actions.
+6. The built image is stored in the `arch-image` release and reused by later deploys, so saved machines keep
+   restoring. To update Arch packages, run the workflow by hand with "rebuild" ticked (this resets saves).
 
 ## Licences
 

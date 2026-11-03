@@ -4,11 +4,14 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: "17 6 1 * *" # refresh Arch packages monthly
+    inputs:
+      rebuild:
+        description: "Rebuild Arch with the newest packages (wipes visitors' saved machines)"
+        type: boolean
+        default: false
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -24,16 +27,26 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: key
-        run: echo "key=arch-${{ hashFiles('build/arch/**', 'build/build-arch.sh', 'build/state.mjs') }}-$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+        run: |
+          k="${{ hashFiles('build/arch/**', 'build/build-arch.sh', 'build/state.mjs') }}"
+          echo "key=${k:0:16}" >> "$GITHUB_OUTPUT"
 
-      - id: cache
-        uses: actions/cache@v4
-        with:
-          path: arch-image
-          key: ${{ steps.key.outputs.key }}
+      # The built image lives in the "arch-image" release so every deploy serves the same files,
+      # which keeps visitors' saved machines restorable. It is rebuilt only when the build files
+      # change or someone runs this workflow with "rebuild".
+      - name: Reuse the stored Arch image
+        id: reuse
+        if: ${{ !inputs.rebuild }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          f="arch-image-${{ steps.key.outputs.key }}.tar"
+          if gh release download arch-image -R "$GITHUB_REPOSITORY" -p "$f" 2>/dev/null; then
+            tar -xf "$f" && rm "$f" && echo "hit=true" >> "$GITHUB_OUTPUT" && echo "reused $f"
+          else echo "no stored image for this build, building"; fi
 
       - name: Build Arch Linux 32 image
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.reuse.outputs.hit != 'true'
         continue-on-error: true
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq python3-zstandard zstd
@@ -45,6 +58,18 @@ jobs:
         run: |
           npm i --no-save --silent v86@0.5.473
           node build/state.mjs arch-image v86
+
+      - name: Store the image for later deploys
+        if: steps.reuse.outputs.hit != 'true' && hashFiles('arch-image/state.bin.zst') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          f="arch-image-${{ steps.key.outputs.key }}.tar"
+          tar -cf "$f" arch-image
+          gh release view arch-image -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create arch-image -R "$GITHUB_REPOSITORY" --title "Arch image" --notes "Built and used by the deploy workflow. Do not edit."
+          gh release upload arch-image "$f" -R "$GITHUB_REPOSITORY" --clobber
+          for old in $(gh release view arch-image -R "$GITHUB_REPOSITORY" --json assets -q '.assets[].name' | grep -v "^$f$"); do gh release delete-asset arch-image "$old" -R "$GITHUB_REPOSITORY" -y; done
+          rm "$f"
 
       - name: Assemble site
         run: |
