@@ -24,6 +24,8 @@ Guided lessons live in the Lab: https://ldiazbusquets.github.io/lab/linux.html
 - Emulator: [v86](https://github.com/copy/v86) (BSD-2-Clause), `v86/libv86.js` and `v86/v86.wasm` from the `v86` npm package 0.5.473.
 - BIOS: SeaBIOS and the VGA BIOS from the v86 repository (LGPL-3.0, see `v86/LICENSE-seabios.txt`).
 - Terminal: [xterm.js](https://xtermjs.org/) 5.5.0 and the fit addon (MIT, `vendor/LICENSE-xterm.txt`).
+- Console font: Terminess Powerline (from Terminus by Dimitar Zhekov, SIL OFL 1.1), bitmaps converted to outline
+  fonts as `vendor/font/console16.woff2` and `console24.woff2` under the name "LDB Console" (`vendor/font/LICENSE-OFL.txt`).
 - Arch Linux 32 packages: each under its own licence, sources available from the Arch Linux 32 project.
   Not affiliated with Arch Linux.
 - Fallback image: `v86/linux.iso` from [copy/images](https://github.com/copy/images), Buildroot with Linux 2.6.34

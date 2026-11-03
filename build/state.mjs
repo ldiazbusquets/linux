@@ -34,7 +34,7 @@ emu.add_listener("serial0-output-byte", b => {
   out += c;
   if (out.length > 20000) out = out.slice(-5000);
   const s = strip(out);
-  if (stage === 0 && /arch@arch \S* \$ $/.test(s)) {
+  if (stage === 0 && /\[arch@arch [^\]]*\]\$ $/.test(s)) {
     stage = 1;
     console.error(`\n== logged in after ${(Date.now() - t0) / 1000}s`);
     setTimeout(() => emu.serial0_send("sudo dmesg -n 1; sync; echo 3 | sudo tee /proc/sys/vm/drop_caches >/dev/null; echo LDB_READY_$((6*7))\n"), 3000);

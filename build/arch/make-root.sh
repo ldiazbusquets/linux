@@ -36,13 +36,12 @@ for p in fastfetch neofetch tmux gcc make python-pip unzip zip jq nmap cowsay fi
 
 # overlay files and system setup
 cp -a --no-preserve=ownership "$B/rootfs/." "$R/"
-chown -R root:root "$R/etc/sudoers.d" "$R/etc/profile.d" "$R/etc/skel" "$R/usr/local/bin" "$R/etc/systemd/system" "$R/etc/motd" "$R/etc/locale.conf" "$R/etc/hostname"
+chown -R root:root "$R/etc/sudoers.d" "$R/etc/profile.d" "$R/usr/local/bin" "$R/etc/systemd/system" "$R/etc/motd" "$R/etc/locale.conf" "$R/etc/hostname"
 arch-chroot "$R" bash -euxc '
   chmod 0440 /etc/sudoers.d/wheel; chmod +x /usr/local/bin/*
   echo "en_US.UTF-8 UTF-8" > /etc/locale.gen; locale-gen
   ln -sf /usr/share/zoneinfo/UTC /etc/localtime
   useradd -m -G wheel -s /bin/bash arch; echo arch:arch | chpasswd; echo root:root | chpasswd
-  cp /etc/skel/.bashrc.ldb /home/arch/.bashrc; cp /etc/skel/.bashrc.ldb /root/.bashrc; chown arch:arch /home/arch/.bashrc
   systemd-machine-id-setup
   for u in systemd-firstboot.service ldconfig.service man-db.timer man-db.service shadow.timer systemd-tmpfiles-clean.timer archlinux-keyring-wkd-sync.timer systemd-timesyncd.service systemd-networkd-wait-online.service systemd-homed.service systemd-userdbd.socket; do systemctl mask "$u" >/dev/null 2>&1 || true; done
   rm -f /boot/initramfs-linux-fallback.img

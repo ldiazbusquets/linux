@@ -6,7 +6,8 @@ const b = await chromium.launch();
 const page = await b.newPage({ viewport: { width: 1280, height: 800 } });
 page.on("pageerror", e => console.log("PAGE ERROR", e.message));
 page.on("console", m => { if (m.type() === "error") console.log("CONSOLE", m.text()); });
-const screen = () => page.evaluate(() => { const bf = __linux.term.buffer.active, o = []; for (let i = 0; i < bf.length; i++) o.push(bf.getLine(i).translateToString(true)); return o.join("\n").replace(/\n+$/, ""); });
+const screen = () => page.evaluate(() => {
+   const bf = __linux.term.buffer.active, o = []; for (let i = 0; i < bf.length; i++) o.push(bf.getLine(i).translateToString(true)); return o.join("\n").replace(/\n+$/, ""); });
 async function run(cmd, marker, ms = 60000) {
   await page.evaluate(c => __linux.send(c + "\r"), cmd);
   await page.waitForFunction(m => { const bf = __linux.term.buffer.active; for (let i = 0; i < bf.length; i++) if (bf.getLine(i).translateToString(true).startsWith(m)) return true; return false; }, marker, { timeout: ms });
@@ -14,15 +15,16 @@ async function run(cmd, marker, ms = 60000) {
 async function boot(label) {
   await page.goto(URL);
   await page.waitForFunction(() => window.__linux && __linux.booted && __linux.ready, null, { timeout: 240000 });
-  await page.waitForTimeout(1500);
-  console.log(`== ${label}: booted in ${secs()} (mode ${await page.evaluate(() => __linux.mode)}, status "${await page.textContent("#state")}")`);
+  await page.waitForFunction(() => { const bf = __linux.term.buffer.active; for (let i = 0; i < bf.length; i++) if (/\[arch@arch [^\]]*\]\$/.test(bf.getLine(i).translateToString(true))) return true; return false; }, null, { timeout: 120000 });
+  await page.waitForTimeout(1000);
+  console.log(`== ${label}: booted in ${secs()} (mode ${await page.evaluate(() => __linux.mode)}, status "${await page.textContent("#stat")}")`);
 }
 try {
   await boot("first visit");
   await run("whoami; uname -mr; grep PRETTY /etc/os-release; sudo -n true && echo SUDO_OK; python -c 'print(6*7)'; pacman -Ss '^vim$' | head -2; pacman -Q | wc -l; df -h / | tail -1; echo HELLO > ~/kept.txt; echo T1_DONE", "T1_DONE", 120000);
   console.log(await screen());
-  await page.click("#bSave");
-  await page.waitForFunction(() => /saved/.test(document.querySelector("#state").textContent), null, { timeout: 180000 });
+  await page.evaluate(() => __linux.save());
+  await page.waitForFunction(() => /saved/.test(document.querySelector("#stat").textContent), null, { timeout: 180000 });
   console.log(`== saved at ${secs()}: ${await page.textContent("#toast")}`);
   await page.screenshot({ path: "shot.png" });
   await boot("reload");

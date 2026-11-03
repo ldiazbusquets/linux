@@ -3,132 +3,111 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
-<title>Arch Linux | LDB Lab</title>
-<meta name="description" content="Arch Linux running inside your browser. A full terminal to play in: pacman, vim, python, git, sudo. Nothing can touch your computer.">
-<meta name="theme-color" content="#050607">
+<title>arch</title>
+<meta name="description" content="Arch Linux running inside your browser. A real console to play in: pacman, vim, python, git, sudo. Nothing can touch your computer.">
+<meta name="theme-color" content="#000000">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Arch Linux | LDB Lab">
-<meta property="og:description" content="Arch Linux running in your browser: a real terminal to play in. Break anything; reset in a second.">
+<meta property="og:description" content="Arch Linux running in your browser: a real console to play in. Break anything; reset in a second.">
 <meta property="og:image" content="https://ldiazbusquets.github.io/linux/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="vendor/xterm.css">
 <style>
-:root{color-scheme:dark;--bg:#050607;--s1:#0b1015;--s2:#101820;--s3:#233449;--ln:#1d2a38;--ln2:#29394c;--ink:#e2e9f1;--text:#c4ceda;--t2:#a9b7c6;--t3:#899bad;--mint:#7ca9d4;--mint-hi:#a9c8e6;--red:#d58c91;
- --sans:"Manrope",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;--mono:"Geist Mono",ui-monospace,Menlo,Consolas,monospace}
+/* Console font: Terminess Powerline (Terminus, SIL OFL 1.1), converted to outlines. See vendor/font. */
+@font-face{font-family:"LDB Console 16";src:url(vendor/font/console16.woff2) format("woff2");font-display:block}
+@font-face{font-family:"LDB Console 24";src:url(vendor/font/console24.woff2) format("woff2");font-display:block}
+:root{color-scheme:dark;--fg:#aaaaaa;--hi:#ffffff;--dim:#555555;--line:#2a2a2a}
 *{box-sizing:border-box}[hidden]{display:none!important}
-html,body{width:100%;height:100%;margin:0;background:var(--bg);color:var(--text);font:400 13px/1.5 var(--mono);-webkit-font-smoothing:antialiased}
+html,body{width:100%;height:100%;margin:0;background:#000;color:var(--fg);font:16px/1 "LDB Console 16",monospace;-webkit-font-smoothing:none;font-smooth:never}
 body{overflow:hidden}
-a{color:inherit}
 .shell{width:100vw;height:100dvh;display:flex;flex-direction:column}
-.top{flex:none;display:flex;align-items:center;gap:6px;padding:8px 14px 8px 18px;border-bottom:1px solid var(--ln);min-height:46px}
-.brand{display:flex;align-items:center;gap:9px;color:var(--ink);font:500 13px var(--mono);text-decoration:none;margin-right:auto;min-width:0;white-space:nowrap}
-.brand svg{flex:none}.brand small{color:var(--t3);font-weight:400;overflow:hidden;text-overflow:ellipsis}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:30px;min-width:30px;padding:0 11px;border:1px solid var(--ln2);border-radius:8px;background:none;color:var(--t2);font:400 12px var(--mono);cursor:pointer;white-space:nowrap;text-decoration:none}
-.btn:hover{color:var(--ink);border-color:var(--mint)}.btn:disabled{opacity:.4;cursor:default;border-color:var(--ln2);color:var(--t2)}.btn.on{color:var(--mint-hi);border-color:var(--mint);background:rgba(124,169,212,.1)}
-.btn svg{width:14px;height:14px;flex:none}
-.led{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--s3);box-shadow:0 0 0 1px var(--ln2);margin-right:7px;vertical-align:1px}.led.ok{background:var(--mint);box-shadow:0 0 8px rgba(124,169,212,.6)}.led.busy{background:var(--mint);animation:pulse 1s infinite}.led.err{background:var(--red)}
-@keyframes pulse{50%{opacity:.25}}
-#term{flex:1;min-height:0;padding:10px 4px 4px 14px;position:relative}
+#term{flex:1;min-height:0;padding:4px 0 0 4px;position:relative}
 #term .xterm{height:100%}
-#term .xterm-viewport{scrollbar-width:thin;scrollbar-color:var(--s3) transparent}
-.boot{position:absolute;inset:0;display:grid;place-items:center;background:var(--bg);z-index:5;text-align:center;padding:24px}
-.boot h1{font:400 clamp(28px,5vw,42px)/1.1 var(--sans);letter-spacing:-.03em;color:var(--ink);margin:0 0 10px}
-.boot p{margin:0 auto 20px;max-width:440px;color:var(--t3);font:400 14px/1.6 var(--sans)}
-.bar{width:min(320px,70vw);height:2px;background:var(--s3);border-radius:2px;overflow:hidden;margin:0 auto 12px}.bar>div{height:100%;width:0;background:var(--mint);transition:width .25s}
-.bootmsg{color:var(--t3);font-size:12px;min-height:18px}
-.keys{flex:none;display:none;gap:6px;padding:6px 10px;border-top:1px solid var(--ln);overflow-x:auto;scrollbar-width:none}
-.keys button{flex:none;min-width:40px;height:34px;padding:0 10px;border:1px solid var(--ln2);border-radius:8px;background:var(--s1);color:var(--t2);font:500 12px var(--mono)}
-.keys button.on{color:var(--bg);background:var(--mint);border-color:var(--mint)}
-@media (pointer:coarse){.keys{display:flex}}
-.foot{flex:none;display:flex;align-items:center;gap:16px;min-height:28px;padding:4px 18px;border-top:1px solid var(--ln);font:400 11px var(--mono);color:var(--t3);overflow:hidden;white-space:nowrap}
-.foot .r{margin-left:auto}.foot b{font-weight:400;color:var(--t2)}.foot a{text-decoration:none}.foot a:hover{color:var(--ink)}
-.pop{position:fixed;z-index:20;top:52px;right:12px;width:min(390px,calc(100vw - 24px));max-height:calc(100dvh - 70px);overflow:auto;background:var(--s1);border:1px solid var(--ln2);border-radius:14px;padding:16px 18px;box-shadow:0 30px 70px -25px #000;font:400 13px/1.6 var(--sans);color:var(--text)}
-.pop h3{margin:0 0 8px;font:500 15px var(--sans);color:var(--ink)}.pop h4{margin:14px 0 6px;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
-.pop p{margin:0 0 8px}.pop code,.pop kbd{font:400 12px var(--mono);color:var(--mint-hi)}
-.pop table{border-collapse:collapse;width:100%;font:400 12px var(--mono)}.pop td{padding:3px 0;vertical-align:top}.pop td:first-child{color:var(--mint-hi);padding-right:12px;white-space:nowrap}
-.opt{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border:1px solid var(--ln);border-radius:10px;margin:0 0 6px;cursor:pointer}
-.opt:has(input:checked){border-color:var(--mint);background:rgba(124,169,212,.07)}.opt input[type=radio]{margin-top:4px;accent-color:var(--mint)}.opt b{color:var(--ink);font-weight:500}.opt span{display:block;color:var(--t3);font-size:12px}
-.pop input[type=text]{width:100%;margin-top:6px;background:var(--bg);border:1px solid var(--ln2);border-radius:8px;color:var(--ink);font:400 12px var(--mono);padding:7px 9px}
-.pop .row{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
-.pop a{color:var(--mint-hi)}
-.toast{position:fixed;left:50%;bottom:44px;transform:translateX(-50%);z-index:30;background:var(--s2);border:1px solid var(--ln2);border-radius:10px;padding:8px 14px;color:var(--ink);font:400 12px var(--mono);box-shadow:0 20px 50px -20px #000;max-width:calc(100vw - 24px)}
-@media (max-width:640px){.top{padding:6px 8px 6px 12px;gap:4px}.btn .lbl{display:none}.btn{padding:0 8px}.brand small{display:none}#term{padding:6px 0 2px 8px}.foot{padding:4px 12px}.foot .hide-s{display:none}}
+#term .xterm-viewport{scrollbar-width:none;background:#000!important}
+#term .xterm-viewport::-webkit-scrollbar{display:none}
+.boot{position:absolute;inset:0;background:#000;z-index:5;padding:4px 0 0 4px;white-space:pre;line-height:1}
+.cur{display:inline-block;width:.5em;height:2px;background:var(--fg);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+/* phones: the keys a touch keyboard lacks */
+.keys{flex:none;display:none;gap:4px;padding:4px;border-top:1px solid var(--line);overflow-x:auto;scrollbar-width:none;background:#000}
+.keys button{flex:none;min-width:38px;height:32px;padding:0 8px;border:1px solid #333;border-radius:4px;background:#0a0a0a;color:var(--fg);font:16px/1 "LDB Console 16",monospace}
+.keys button.on{background:var(--fg);color:#000}
+@media (hover:none) and (pointer:coarse){.keys{display:flex}}
+/* hidden menu: top-right corner */
+.menubtn{position:fixed;top:6px;right:8px;z-index:15;width:30px;height:24px;border:1px solid #333;border-radius:4px;background:#000;color:var(--fg);font:16px/1 "LDB Console 16",monospace;cursor:pointer;opacity:0;transition:opacity .2s}
+.menubtn:focus-visible,.hot:hover~.menubtn,.menubtn:hover,.menubtn.open{opacity:1}
+@media (hover:none){.menubtn{opacity:.55}}
+.hot{position:fixed;top:0;right:0;width:140px;height:60px;z-index:14}
+.panel{position:fixed;z-index:20;top:36px;right:8px;width:min(420px,calc(100vw - 16px));max-height:calc(100dvh - 48px);overflow:auto;background:#000;border:1px solid #444;padding:10px 12px;font:16px/1.25 "LDB Console 16",monospace;color:var(--fg);box-shadow:0 0 0 1px #000,0 12px 40px #000}
+.panel h3{margin:0 0 8px;font:inherit;color:var(--hi)}.panel h4{margin:12px 0 4px;font:inherit;color:var(--hi)}
+.panel p{margin:0 0 8px}.panel a{color:#55ffff}
+.panel .k{color:#55ffff}
+.mrow{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px}
+.mb{font:inherit;color:var(--fg);background:#000;border:1px solid #444;padding:4px 8px;cursor:pointer}
+.mb:hover:not(:disabled){color:#000;background:var(--fg)}.mb:disabled{opacity:.4;cursor:default}.mb.on{color:#000;background:var(--fg)}
+.stat{color:var(--dim);margin:6px 0 0}
+.opt{display:flex;gap:8px;align-items:flex-start;padding:6px 0;cursor:pointer}.opt input{accent-color:#aaa;margin-top:1px}.opt b{color:var(--hi);font-weight:400}.opt span{display:block;color:var(--dim)}
+.panel input[type=text]{width:100%;margin-top:4px;background:#000;border:1px solid #444;color:var(--hi);font:inherit;padding:3px 5px}
+table{border-collapse:collapse;width:100%}td{padding:1px 0;vertical-align:top}td:first-child{color:#55ffff;padding-right:12px;white-space:nowrap}
+.toast{position:fixed;right:8px;bottom:8px;z-index:30;background:#000;border:1px solid #444;padding:6px 9px;color:var(--hi);font:16px/1.2 "LDB Console 16",monospace;max-width:calc(100vw - 16px)}
 </style>
 </head>
 <body>
 <div class="shell">
-  <header class="top">
-    <a class="brand" href="/lab/" title="LDB Lab"><svg width="20" height="20" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0b1015" stroke="#29394c" stroke-width="2"/><path d="M16 22l10 10-10 10" fill="none" stroke="#7ca9d4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M31 44h17" stroke="#a9c8e6" stroke-width="5" stroke-linecap="round"/></svg><span id="title">arch@arch</span> <small id="sub">Arch Linux in your browser</small></a>
-    <button class="btn" id="bNet" title="Internet"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6.2"/><path d="M1.8 8h12.4M8 1.8c2 2 2 10.4 0 12.4M8 1.8c-2 2-2 10.4 0 12.4"/></svg><span class="lbl">Network</span></button>
-    <button class="btn" id="bSave" title="Save this machine in your browser"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M3 2.5h8l2.5 2.5v8.5H3z"/><path d="M5.5 2.5v3.5h5V2.5M5.5 13.5v-4h5v4"/></svg><span class="lbl">Save</span></button>
-    <button class="btn" id="bReset" title="Start over from a fresh install"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2.8 8a5.2 5.2 0 1 0 1.6-3.8M2.5 2.5v3h3"/></svg><span class="lbl">Reset</span></button>
-    <button class="btn" id="bFull" title="Full screen"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/></svg></button>
-    <button class="btn" id="bHelp" title="Help">?</button>
-  </header>
-
-  <div id="term">
-    <div class="boot" id="boot"><div>
-      <h1>Arch Linux</h1>
-      <p>A real Arch Linux system starting inside this page. It runs on your device, and nothing in it can touch your computer.</p>
-      <div class="bar"><div id="barf"></div></div>
-      <div class="bootmsg" id="bootmsg">Loading the emulator&hellip;</div>
-    </div></div>
-  </div>
-
+  <div id="term"><div class="boot" id="boot"><span id="bootmsg"></span><span class="cur"></span></div></div>
   <div class="keys" id="keys" aria-label="Extra keys">
     <button data-k="esc">Esc</button><button data-k="tab">Tab</button><button data-k="ctrl" id="kCtrl">Ctrl</button>
     <button data-k="up">&uarr;</button><button data-k="down">&darr;</button><button data-k="left">&larr;</button><button data-k="right">&rarr;</button>
-    <button data-s="|">|</button><button data-s="~">~</button><button data-s="/">/</button><button data-s="-">-</button><button data-s="$">$</button><button data-k="paste">Paste</button>
-  </div>
-
-  <div class="foot">
-    <span><span class="led" id="led"></span><b id="state">starting</b></span>
-    <span class="hide-s" id="hw">i686 &middot; 384 MB RAM</span>
-    <span class="hide-s" id="netst">network off</span>
-    <span class="r"><a href="/lab/linux.html">Linux course</a> &middot; <a href="/terminal/">AI terminal</a></span>
+    <button data-s="|">|</button><button data-s="~">~</button><button data-s="/">/</button><button data-s="-">-</button><button data-k="paste">paste</button>
   </div>
 </div>
+<div class="hot" aria-hidden="true"></div>
+<button class="menubtn" id="menuBtn" title="Menu (Ctrl+Alt+M)" aria-label="Menu">&equiv;</button>
 
-<div class="pop" id="pNet" hidden>
-  <h3>Internet</h3>
-  <p style="color:var(--t3)">The machine has a network card. Pick how it reaches the internet, then run <code>net-up</code> inside Linux.</p>
-  <label class="opt"><input type="radio" name="net" value="off"><div><b>Off</b><span>Fully offline. <code>pacman -Ss</code> still works because the package lists are built in.</span></div></label>
-  <label class="opt"><input type="radio" name="net" value="fetch"><div><b>Web, HTTP only</b><span>Requests go out through your browser. Plain <code>http://</code> pages that allow it will load; HTTPS and pacman downloads won&rsquo;t.</span></div></label>
-  <label class="opt"><input type="radio" name="net" value="wisp"><div><b>Relay, full internet</b><span>Real connections through a Wisp relay server, so <code>sudo pacman -S</code>, <code>git clone</code> and <code>curl https://</code> work. Traffic passes through whoever runs the relay, so use one you run or trust.</span>
-    <input type="text" id="wispUrl" placeholder="wss://your-relay.example/" spellcheck="false" autocomplete="off"></div></label>
-  <div class="row"><button class="btn" id="netCancel">Cancel</button><button class="btn on" id="netApply">Apply</button></div>
-</div>
-
-<div class="pop" id="pHelp" hidden>
-  <h3>Arch Linux in your browser</h3>
-  <p>A real Arch Linux 32 (i686) system on an emulated PC. You are <code>arch</code> (password <code>arch</code>) with <code>sudo</code>; root&rsquo;s password is <code>root</code>.</p>
-  <h4>Saving</h4>
-  <p><b>Save</b> keeps the whole machine in this browser (files, installed packages, even running programs) and it comes back on your next visit. <b>Reset</b> wipes it to a fresh install.</p>
-  <h4>Try</h4>
-  <table>
-    <tr><td>fastfetch</td><td>system summary</td></tr>
-    <tr><td>pacman -Ss vim</td><td>search packages (works offline)</td></tr>
-    <tr><td>sudo pacman -S cmatrix</td><td>install one (needs Relay)</td></tr>
-    <tr><td>vim notes.txt</td><td>edit a file, <kbd>:wq</kbd> saves and quits</td></tr>
-    <tr><td>htop</td><td>processes, <kbd>q</kbd> quits</td></tr>
-    <tr><td>python</td><td>Python 3, <kbd>Ctrl+D</kbd> quits</td></tr>
-    <tr><td>systemctl status</td><td>services</td></tr>
-    <tr><td>man bash</td><td>manuals, <kbd>q</kbd> quits</td></tr>
-  </table>
-  <h4>Keys</h4>
-  <table>
-    <tr><td>Ctrl+Shift+C / V</td><td>copy / paste</td></tr>
-    <tr><td>Ctrl+C</td><td>stop the running command</td></tr>
-    <tr><td>Tab</td><td>complete names</td></tr>
-  </table>
-  <p style="margin-top:12px;color:var(--t3);font-size:12px">New to Linux? The <a href="/lab/linux.html">Linux course</a> has guided lessons. Built with <a href="https://github.com/copy/v86">v86</a> (BSD), <a href="https://archlinux32.org/">Arch Linux 32</a> packages (each under its own licence) and <a href="https://xtermjs.org/">xterm.js</a> (MIT). Not affiliated with Arch Linux.</p>
+<div class="panel" id="menu" hidden>
+  <div class="mrow">
+    <button class="mb" id="bSave" title="Keep this machine in your browser">save</button>
+    <button class="mb" id="bReset" title="Wipe back to a fresh install">reset</button>
+    <button class="mb" id="bNet">network</button>
+    <button class="mb" id="bFull">fullscreen</button>
+    <button class="mb" id="bHelp">help</button>
+  </div>
+  <div id="netBox" hidden>
+    <h4>network</h4>
+    <label class="opt"><input type="radio" name="net" value="off"><div><b>off</b><span>Offline. pacman -Ss still works: the package lists are built in.</span></div></label>
+    <label class="opt"><input type="radio" name="net" value="fetch"><div><b>web, http only</b><span>Through your browser. Plain http:// pages that allow it load; https and pacman downloads don't.</span></div></label>
+    <label class="opt"><input type="radio" name="net" value="wisp"><div><b>relay, full internet</b><span>Real connections through a Wisp relay, so pacman -S, git clone and curl https:// work. Traffic passes through whoever runs it.</span>
+      <input type="text" id="wispUrl" placeholder="wss://your-relay.example/" spellcheck="false" autocomplete="off"></div></label>
+    <div class="mrow"><button class="mb" id="netApply">apply</button><button class="mb" id="netCancel">cancel</button></div>
+    <p style="color:var(--dim)">After switching on, run <span class="k">net-up</span> in the console.</p>
+  </div>
+  <div id="helpBox" hidden>
+    <h4>about</h4>
+    <p>Arch Linux 32 (i686) on an emulated PC, running in this tab. Nothing in it can touch your computer.</p>
+    <p>User <span class="k">arch</span>, password <span class="k">arch</span>, in the wheel group (sudo). root's password is <span class="k">root</span>.</p>
+    <p><b style="font-weight:400;color:var(--hi)">save</b> keeps the whole machine (files, packages, even running programs) in this browser and brings it back next visit. <b style="font-weight:400;color:var(--hi)">reset</b> wipes it.</p>
+    <h4>try</h4>
+    <table>
+      <tr><td>fastfetch</td><td>system summary</td></tr>
+      <tr><td>pacman -Ss vim</td><td>search packages</td></tr>
+      <tr><td>sudo pacman -S cmatrix</td><td>install (needs relay)</td></tr>
+      <tr><td>vim notes.txt</td><td>edit, :wq to save</td></tr>
+      <tr><td>htop</td><td>processes, q quits</td></tr>
+      <tr><td>python</td><td>Python 3</td></tr>
+      <tr><td>man bash</td><td>manuals</td></tr>
+    </table>
+    <h4>keys</h4>
+    <table>
+      <tr><td>Ctrl+Shift+C/V</td><td>copy / paste</td></tr>
+      <tr><td>Ctrl+Alt+M</td><td>this menu</td></tr>
+    </table>
+    <p style="margin-top:10px;color:var(--dim)">Guided lessons: <a href="/lab/linux.html">Linux course</a>. Also: <a href="/terminal/">AI terminal</a>, <a href="/lab/">LDB Lab</a>.<br>Built with <a href="https://github.com/copy/v86">v86</a> (BSD), <a href="https://archlinux32.org/">Arch Linux 32</a> packages (own licences), <a href="https://xtermjs.org/">xterm.js</a> (MIT) and the Terminus font (OFL). Not affiliated with Arch Linux.</p>
+  </div>
+  <p class="stat" id="stat">starting</p>
 </div>
 
 <div class="toast" id="toast" hidden></div>
@@ -146,54 +125,58 @@ a{color:inherit}
   var CMDLINE = 'rw root=host9p rootfstype=9p rootflags=trans=virtio,cache=loose console=ttyS0 init_on_free=on spectre_v2=off pti=off quiet loglevel=3';
   var HW = { memory_size: 384 * 1024 * 1024, vga_memory_size: 8 * 1024 * 1024 };
   var DB = 'ldb-linux', STORE = 'saves', KEY = 'arch';
-  var emu = null, mode = null, build = null, net = loadNet(), ready = false, busy = false, booted = false;
+  var emu = null, mode = null, build = null, net = loadNet(), ready = false, busy = false, booted = false, term, fit;
 
-  /* ---------- terminal ---------- */
-  var term = new Terminal({
-    fontFamily: '"Geist Mono", ui-monospace, Menlo, Consolas, monospace', fontSize: innerWidth < 640 ? 12.5 : 14, lineHeight: 1.18,
-    cursorBlink: true, scrollback: 5000, macOptionIsMeta: true,
-    theme: { background: '#050607', foreground: '#c4ceda', cursor: '#a9c8e6', cursorAccent: '#050607', selectionBackground: 'rgba(124,169,212,.35)',
-      black: '#1d2a38', red: '#d58c91', green: '#9cc7a4', yellow: '#c6c0a2', blue: '#7ca9d4', magenta: '#b7a3d6', cyan: '#8fc3d4', white: '#c4ceda',
-      brightBlack: '#5c6f82', brightRed: '#e6a3a8', brightGreen: '#b4dbbb', brightYellow: '#d8d3ba', brightBlue: '#a9c8e6', brightMagenta: '#cbbbe6', brightCyan: '#aedbe8', brightWhite: '#e2e9f1' }
-  });
-  var fit = new FitAddon.FitAddon();
-  term.loadAddon(fit);
-  term.open($('term'));
-  function refit() { try { fit.fit(); } catch (e) {} }
-  refit();
-  if (document.fonts) document.fonts.ready.then(refit);
-  var enc = new TextEncoder(), dec = new TextDecoder();
-  var ctrl = false;
+  /* ---------- Linux console look: VGA palette, Terminus, underline cursor ---------- */
+  var big = Math.min(innerWidth, screen.width) >= 1500;
+  var FONT = big ? '"LDB Console 24"' : '"LDB Console 16"', SIZE = big ? 24 : 16;
+  var VGA = { background: '#000000', foreground: '#aaaaaa', cursor: '#aaaaaa', cursorAccent: '#000000', selectionBackground: 'rgba(170,170,170,.45)',
+    black: '#000000', red: '#aa0000', green: '#00aa00', yellow: '#aa5500', blue: '#0000aa', magenta: '#aa00aa', cyan: '#00aaaa', white: '#aaaaaa',
+    brightBlack: '#555555', brightRed: '#ff5555', brightGreen: '#55ff55', brightYellow: '#ffff55', brightBlue: '#5555ff', brightMagenta: '#ff55ff', brightCyan: '#55ffff', brightWhite: '#ffffff' };
+  $('boot').style.font = SIZE + 'px/1 ' + FONT + ', monospace';
+
+  function makeTerm() {
+    term = new Terminal({ fontFamily: FONT + ', monospace', fontSize: SIZE, lineHeight: 1, letterSpacing: 0, fontWeight: 'normal', fontWeightBold: 'normal',
+      drawBoldTextInBrightColors: true, cursorBlink: true, cursorStyle: 'underline', scrollback: 5000, macOptionIsMeta: true, theme: VGA, customGlyphs: true });
+    fit = new FitAddon.FitAddon();
+    term.loadAddon(fit);
+    term.open($('term'));
+    refit();
+    term.onData(send);
+    term.attachCustomKeyEventHandler(function (e) {
+      if (e.type !== 'keydown') return true;
+      if (e.ctrlKey && e.altKey && e.code === 'KeyM') { toggleMenu(); e.preventDefault(); return false; }
+      if (!e.ctrlKey || !e.shiftKey) return true;
+      if (e.code === 'KeyC') { var t = term.getSelection(); if (t && navigator.clipboard) navigator.clipboard.writeText(t); e.preventDefault(); return false; }
+      if (e.code === 'KeyV') { paste(); e.preventDefault(); return false; }
+      return true;
+    });
+  }
+  function refit() { try { fit && fit.fit(); } catch (e) {} }
+  var resizeT;
+  addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(refit, 80); });
+
+  var enc = new TextEncoder(), dec = new TextDecoder(), ctrl = false;
   function send(s) {
     if (!emu || !ready) return;
     if (ctrl && s.length === 1) { var c = s.toUpperCase().charCodeAt(0); if (c >= 64 && c < 96) s = String.fromCharCode(c - 64); setCtrl(false); }
     emu.serial_send_bytes(0, enc.encode(s));
   }
-  term.onData(send);
-  term.attachCustomKeyEventHandler(function (e) {
-    if (e.type !== 'keydown' || !e.ctrlKey || !e.shiftKey) return true;
-    if (e.code === 'KeyC') { var t = term.getSelection(); if (t && navigator.clipboard) navigator.clipboard.writeText(t); e.preventDefault(); return false; }
-    if (e.code === 'KeyV') { paste(); e.preventDefault(); return false; }
-    return true;
-  });
   function paste() {
-    if (!navigator.clipboard || !navigator.clipboard.readText) { toast('Use your keyboard shortcut to paste.'); return; }
-    navigator.clipboard.readText().then(function (t) { if (t) send(t.replace(/\r?\n/g, '\r')); term.focus(); }).catch(function () { toast('The browser blocked paste here. Use your keyboard shortcut.'); });
+    if (!navigator.clipboard || !navigator.clipboard.readText) { toast('use your keyboard shortcut to paste'); return; }
+    navigator.clipboard.readText().then(function (t) { if (t) send(t.replace(/\r?\n/g, '\r')); term.focus(); }).catch(function () { toast('paste blocked here; use your keyboard shortcut'); });
   }
 
-  // serial output: batch into one write per frame; notice the first shell prompt on a cold boot
+  // serial output -> console, batched per frame; spot the first shell prompt on a cold boot
   var outq = [], outScheduled = false, tail = '';
   function onByte(b) {
     outq.push(b);
-    if (!booted) { tail = (tail + String.fromCharCode(b)).slice(-200); if (/[$#%] $/.test(tail.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, ''))) { booted = true; up(); } }
+    if (!booted) { tail = (tail + String.fromCharCode(b)).slice(-200); if (/[$#%] $/.test(tail.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, ''))) up(); }
     if (!outScheduled) { outScheduled = true; requestAnimationFrame(flush); }
   }
   function flush() { outScheduled = false; if (!outq.length) return; var u = new Uint8Array(outq); outq = []; term.write(dec.decode(u, { stream: true })); }
 
-  var resizeT;
-  addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(refit, 80); });
-
-  /* ---------- extra keys for phones ---------- */
+  /* ---------- phone keys ---------- */
   var SEQ = { esc: '\x1b', tab: '\t', up: '\x1b[A', down: '\x1b[B', right: '\x1b[C', left: '\x1b[D' };
   function setCtrl(v) { ctrl = v; $('kCtrl').classList.toggle('on', v); }
   $('keys').addEventListener('pointerdown', function (e) { if (e.target.closest('button')) e.preventDefault(); });
@@ -204,19 +187,26 @@ a{color:inherit}
     term.focus();
   });
 
-  /* ---------- ui helpers ---------- */
-  function status(s, cls) { $('state').textContent = s; $('led').className = 'led' + (cls ? ' ' + cls : ''); }
-  function bootMsg(s, pct) { $('bootmsg').textContent = s; if (pct != null) $('barf').style.width = Math.round(pct * 100) + '%'; }
+  /* ---------- menu ---------- */
+  function toggleMenu(force) {
+    var open = force != null ? force : $('menu').hidden;
+    $('menu').hidden = !open; $('menuBtn').classList.toggle('open', open);
+    if (!open) { $('netBox').hidden = $('helpBox').hidden = true; term && term.focus(); }
+  }
+  $('menuBtn').onclick = function () { toggleMenu(); };
+  document.addEventListener('pointerdown', function (e) { if (!$('menu').hidden && !e.target.closest('#menu,#menuBtn')) toggleMenu(false); });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('menu').hidden) toggleMenu(false); });
+  $('bHelp').onclick = function () { $('helpBox').hidden = !$('helpBox').hidden; $('netBox').hidden = true; };
+  var statText = 'starting';
+  function status(s) { statText = s; $('stat').textContent = s + ' · i686 · 384 MB · ' + netText(); }
+  function bootMsg(s) { $('bootmsg').textContent = s; }
   var toastT;
   function toast(s, ms) { var t = $('toast'); t.textContent = s; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, ms || 3500); }
-  function pop(id) { ['pNet', 'pHelp'].forEach(function (p) { $(p).hidden = p === id ? !$(p).hidden : true; }); }
-  document.addEventListener('pointerdown', function (e) { if (!e.target.closest('.pop,.btn')) pop(null); });
   function buttons() { $('bSave').disabled = $('bReset').disabled = $('bNet').disabled = !ready || busy || mode !== 'arch'; }
   function fmtMB(n) { return (n / 1048576).toFixed(0) + ' MB'; }
-  function banner(text) { term.write('\x1b[38;5;111m' + text + '\x1b[0m\r\n'); }
   function up(how) {
-    booted = true; $('boot').hidden = true; buttons(); netLabel(); refit(); term.focus();
-    status('running' + (how ? ' · ' + how : ''), 'ok');
+    if (booted) return; booted = true;
+    $('boot').hidden = true; buttons(); refit(); term.focus(); status('running' + (how ? ', ' + how : ''));
   }
 
   /* ---------- saves (IndexedDB, gzip) ---------- */
@@ -226,54 +216,55 @@ a{color:inherit}
   function gz(buf, how) { var S = how === 'c' ? new CompressionStream('gzip') : new DecompressionStream('gzip'); return new Response(new Blob([buf]).stream().pipeThrough(S)).arrayBuffer(); }
 
   function save() {
-    if (!ready || busy) return; busy = true; buttons(); status('saving', 'busy'); toast('Saving the machine…', 60000);
+    if (!ready || busy) return; busy = true; buttons(); status('saving'); toast('saving…', 60000);
     emu.save_state().then(function (st) { return gz(st, 'c'); })
       .then(function (z) { return idbDo('readwrite', function (s) { return s.put({ when: Date.now(), build: build && build.built, size: z.byteLength, data: z }, KEY); }).then(function () { return z; }); })
-      .then(function (z) { toast('Saved (' + fmtMB(z.byteLength) + '). It will be here next time you open this page.'); status('running · saved', 'ok'); })
-      .catch(function (e) { toast('Could not save: ' + (e && e.message || e) + '. The browser may be out of storage space.', 6000); status('running', 'ok'); })
+      .then(function (z) { toast('saved (' + fmtMB(z.byteLength) + '), restored on your next visit'); status('running, saved'); })
+      .catch(function (e) { toast('could not save: ' + (e && e.message || e), 6000); status('running'); })
       .then(function () { busy = false; buttons(); });
   }
   var resetArmed = 0;
   function reset() {
     if (!ready || busy) return;
-    if (Date.now() - resetArmed > 4000) { resetArmed = Date.now(); toast('Press Reset again to wipe this machine back to a fresh install.', 4000); return; }
-    busy = true; buttons(); status('resetting', 'busy');
+    if (Date.now() - resetArmed > 4000) { resetArmed = Date.now(); toast('press reset again to wipe this machine', 4000); return; }
+    busy = true; buttons(); status('resetting');
     idbDo('readwrite', function (s) { return s.delete(KEY); }).catch(function () {}).then(function () { location.reload(); });
   }
+  $('bSave').onclick = save;
+  $('bReset').onclick = reset;
+  $('bFull').onclick = function () { var d = document.documentElement; if (document.fullscreenElement) document.exitFullscreen(); else if (d.requestFullscreen) d.requestFullscreen(); toggleMenu(false); setTimeout(refit, 250); };
 
   /* ---------- network ---------- */
   function loadNet() { try { return JSON.parse(localStorage.getItem('linux.net')) || { mode: 'off', wisp: '' }; } catch (e) { return { mode: 'off', wisp: '' }; } }
+  function netText() { return net.mode === 'off' ? 'network off' : net.mode === 'fetch' ? 'network: http' : 'network: relay'; }
   function netDevice() {
     var d = { type: 'virtio' };
     if (net.mode === 'fetch') d.relay_url = 'fetch';
     if (net.mode === 'wisp' && /^wss?:\/\//.test(net.wisp)) d.relay_url = net.wisp;
     return d;
   }
-  function netLabel() { $('netst').textContent = net.mode === 'off' ? 'network off' : net.mode === 'fetch' ? 'network: web (http)' : 'network: relay'; $('bNet').classList.toggle('on', net.mode !== 'off'); }
   $('bNet').onclick = function () {
     document.querySelectorAll('input[name=net]').forEach(function (r) { r.checked = r.value === net.mode; });
-    $('wispUrl').value = net.wisp || ''; pop('pNet');
+    $('wispUrl').value = net.wisp || ''; $('netBox').hidden = !$('netBox').hidden; $('helpBox').hidden = true;
   };
-  $('netCancel').onclick = function () { pop(null); };
+  $('netCancel').onclick = function () { $('netBox').hidden = true; };
   $('netApply').onclick = function () {
     var m = (document.querySelector('input[name=net]:checked') || {}).value || 'off', w = $('wispUrl').value.trim();
-    if (m === 'wisp' && !/^wss?:\/\//.test(w)) { toast('Enter a relay address starting with wss://'); return; }
-    pop(null);
+    if (m === 'wisp' && !/^wss?:\/\//.test(w)) { toast('enter a relay address starting with wss://'); return; }
     var changed = m !== net.mode || (m === 'wisp' && w !== net.wisp);
     net = { mode: m, wisp: w }; try { localStorage.setItem('linux.net', JSON.stringify(net)); } catch (e) {}
-    netLabel();
+    $('bNet').classList.toggle('on', net.mode !== 'off'); toggleMenu(false); status(statText);
     if (changed && ready) rewire();
   };
-  // The network backend is fixed when the emulator is created, so snapshot, rebuild, resume.
+  // The network backend is fixed when the emulator is created: snapshot, rebuild, resume.
   function rewire() {
-    busy = true; buttons(); status('switching network', 'busy');
+    busy = true; buttons(); status('switching network');
     emu.save_state().then(function (st) {
       ready = false;
       return emu.destroy().then(function () { return start({ initial_state: { buffer: st } }); });
     }).then(function () {
-      banner('\r\n[network ' + (net.mode === 'off' ? 'off' : 'on') + ']' + (net.mode !== 'off' ? ' run net-up to get an address' : ''));
-      send('\r'); status('running', 'ok');
-    }).catch(function (e) { toast('Network switch failed: ' + (e && e.message || e), 6000); status('error', 'err'); })
+      toast(net.mode === 'off' ? 'network off' : 'network on: run net-up', 5000); status('running');
+    }).catch(function (e) { toast('network switch failed: ' + (e && e.message || e), 6000); status('error'); })
       .then(function () { busy = false; buttons(); });
   }
 
@@ -291,65 +282,53 @@ a{color:inherit}
       try { emu = new V86(c); } catch (e) { return no(e); }
       emu.add_listener('serial0-output-byte', onByte);
       emu.add_listener('download-progress', function (p) {
-        if (!p.file_name || !p.lengthComputable || booted) return;
-        var what = /state/.test(p.file_name) ? 'the booted machine' : /fs\.json/.test(p.file_name) ? 'the file list' : null;
-        if (what) bootMsg('Downloading ' + what + '… ' + fmtMB(p.loaded) + ' of ' + fmtMB(p.total), .1 + .8 * p.loaded / p.total);
+        if (booted || !p.file_name || !p.lengthComputable) return;
+        if (/state/.test(p.file_name)) bootMsg('Loading machine state... ' + fmtMB(p.loaded) + '/' + fmtMB(p.total) + '\n');
       });
       emu.add_listener('emulator-ready', function () { ready = true; ok(); });
     });
   }
 
   function bootArch() {
-    mode = 'arch'; netLabel();
+    mode = 'arch';
     return Promise.all([getSave(), fetch(ARCH + 'state.bin.zst', { method: 'HEAD' }).then(function (r) { return r.ok; }).catch(function () { return false; })]).then(function (r) {
       var s = r[0], hasState = r[1];
-      if (s && s.build && build && s.build !== build.built) { toast('Arch was rebuilt since your save (' + s.build + '), so this is a fresh install.', 7000); s = null; }
+      if (s && s.build && build && s.build !== build.built) { toast('Arch was rebuilt since your save (' + s.build + '); starting fresh', 7000); s = null; }
       if (s && s.data) {
-        bootMsg('Restoring your saved machine…', .4);
+        bootMsg('Restoring saved machine...\n');
         return gz(s.data, 'd').then(function (st) { return start({ initial_state: { buffer: st } }); }).then(function () {
           up('your save from ' + new Date(s.when).toLocaleDateString());
-          banner('Welcome back. This is your machine as you saved it on ' + new Date(s.when).toLocaleString() + '.');
-          send('\r');
+          send('\x0c');   // Ctrl+L: redraw the prompt
         });
       }
       if (hasState) {
-        bootMsg('Downloading the booted machine…', .1);
-        return start({ initial_state: { url: ARCH + 'state.bin.zst' } }).then(function () { up(); send('clear; cat /etc/motd\r'); });
+        bootMsg('Loading machine state...\n');
+        // The snapshot was taken at a logged-in shell; log out so getty draws a real login screen.
+        return start({ initial_state: { url: ARCH + 'state.bin.zst' } }).then(function () { up(); send('exit\r'); });
       }
-      bootMsg('Booting from scratch, about a minute…', .5);
-      return start({}).then(function () {
-        status('booting', 'busy');
-        setTimeout(function () { if (!booted) $('boot').hidden = true; }, 3000);
-      });
+      bootMsg('Booting...\n');
+      return start({}).then(function () { status('booting'); setTimeout(function () { $('boot').hidden = true; }, 2000); });
     });
   }
 
-  // Until the Arch image has been built and deployed, run the small Buildroot Linux instead.
+  // Before the Arch image exists, run the small Buildroot Linux.
   function bootSmall() {
-    mode = 'small';
-    $('title').textContent = 'root@buildroot'; $('sub').textContent = 'small practice Linux while Arch is being built';
-    $('hw').textContent = 'i686 · 64 MB RAM';
-    bootMsg('Starting the small practice Linux…', .5);
+    mode = 'small'; document.title = 'buildroot';
+    bootMsg('Booting...\n');
     emu = new V86({ wasm_path: 'v86/v86.wasm', memory_size: 64 * 1024 * 1024, vga_memory_size: 2 * 1024 * 1024, bios: { url: 'v86/seabios.bin' }, vga_bios: { url: 'v86/vgabios.bin' }, cdrom: { url: 'v86/linux.iso' }, autostart: true, disable_speaker: true, disable_keyboard: true, disable_mouse: true });
     var logged = false, lt = '';
     emu.add_listener('serial0-output-byte', function (b) { if (!logged) { lt = (lt + String.fromCharCode(b)).slice(-40); if (/login: $/.test(lt)) { logged = true; emu.serial0_send('root\n'); } } onByte(b); });
-    emu.add_listener('emulator-ready', function () { ready = true; status('booting', 'busy'); banner('Arch Linux is still being built. Meanwhile, this is a small BusyBox Linux.'); });
+    emu.add_listener('emulator-ready', function () { ready = true; status('booting'); $('boot').hidden = true; });
   }
 
-  status('starting', 'busy'); buttons();
-  window.__linux = { term: term, send: send, save: save, get emu() { return emu; }, get mode() { return mode; }, get ready() { return ready; }, get booted() { return booted; } };
-  fetch(ARCH + 'build.json', { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error('no build'); return r.json(); }).then(function (b) {
-    build = b; $('sub').textContent = 'Arch Linux 32 · built ' + b.built;
-    return bootArch();
-  }, function () { bootSmall(); }).catch(function (e) {
-    console.error(e); bootMsg('Could not start: ' + (e && e.message || e), 1); status('error', 'err');
-  });
-
-  $('bSave').onclick = save;
-  $('bReset').onclick = reset;
-  $('bHelp').onclick = function () { pop('pHelp'); };
-  $('bFull').onclick = function () { var d = document.documentElement; if (document.fullscreenElement) document.exitFullscreen(); else if (d.requestFullscreen) d.requestFullscreen(); setTimeout(refit, 250); };
-  addEventListener('keydown', function (e) { if (e.key === 'Escape') pop(null); });
+  window.__linux = { send: send, save: save, get term() { return term; }, get emu() { return emu; }, get mode() { return mode; }, get ready() { return ready; }, get booted() { return booted; } };
+  var fontsReady = document.fonts && document.fonts.load ? document.fonts.load(SIZE + 'px ' + FONT).catch(function () {}) : Promise.resolve();
+  fontsReady.then(function () {
+    makeTerm(); status('starting'); buttons();
+    $('bNet').classList.toggle('on', net.mode !== 'off');
+    return fetch(ARCH + 'build.json', { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error('no build'); return r.json(); });
+  }).then(function (b) { build = b; return bootArch(); }, function () { bootSmall(); })
+    .catch(function (e) { console.error(e); bootMsg('error: could not start the emulator (' + (e && e.message || e) + ')\n'); status('error'); });
 })();
 </script>
 </body>
