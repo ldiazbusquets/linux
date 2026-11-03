@@ -36,7 +36,8 @@ sed -i 's#Include = /tmp/mirrorlist32#Include = /etc/pacman.d/mirrorlist#' "$R/e
 for p in fastfetch neofetch tmux gcc make python-pip unzip zip jq nmap cowsay figlet; do arch-chroot "$R" pacman -S --noconfirm --needed "$p" >/dev/null 2>&1 && echo "added $p" || echo "skipped $p"; done
 
 # overlay files and system setup
-cp -a "$B/rootfs/." "$R/"
+cp -a --no-preserve=ownership "$B/rootfs/." "$R/"
+chown -R root:root "$R/etc/sudoers.d" "$R/etc/profile.d" "$R/etc/skel" "$R/usr/local/bin" "$R/etc/systemd/system" "$R/etc/motd" "$R/etc/locale.conf" "$R/etc/hostname"
 arch-chroot "$R" bash -euxc '
   chmod 0440 /etc/sudoers.d/wheel; chmod +x /usr/local/bin/*
   echo "en_US.UTF-8 UTF-8" > /etc/locale.gen; locale-gen
@@ -52,13 +53,13 @@ arch-chroot "$R" bash -euxc '
 
 # Package signatures: use them if the keyring works, otherwise fall back so pacman is usable.
 SIG="Required DatabaseOptional"
-if arch-chroot "$R" bash -c 'pacman-key --init >/dev/null 2>&1 && pacman-key --populate archlinux32 >/dev/null 2>&1'; then
-  conf "$SIG" /etc/pacman.d/mirrorlist > "$R/etc/pacman.conf"
-  if arch-chroot "$R" bash -c 'pacman -Sy --noconfirm >/dev/null && pacman -S --noconfirm --needed sl >/dev/null && pacman -Rns --noconfirm sl >/dev/null'; then
-    echo "signatures: verified install works"
-  else SIG=Never; fi
-else SIG=Never; fi
-if [ "$SIG" = Never ]; then echo "::warning::Arch Linux 32 keyring check failed, pacman signature checking is off"; conf Never /etc/pacman.d/mirrorlist > "$R/etc/pacman.conf"; fi
+conf "$SIG" /etc/pacman.d/mirrorlist > "$R/etc/pacman.conf"
+if arch-chroot "$R" bash -c 'pacman-key --init && (pacman-key --populate archlinux32 || pacman-key --populate) && pacman -Sy --noconfirm && pacman -S --noconfirm tree'; then
+  echo "signatures: on, a verified reinstall worked"
+else
+  echo "::warning::Arch Linux 32 keyring check failed, pacman signature checking is off"
+  conf Never /etc/pacman.d/mirrorlist > "$R/etc/pacman.conf"
+fi
 arch-chroot "$R" pacman -Sy --noconfirm >/dev/null || true   # fresh package lists for offline pacman -Ss
 
 # smaller: drivers a virtual PC never needs, other languages, caches

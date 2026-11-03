@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: key
-        run: echo "key=arch-${{ hashFiles('build/**') }}-$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+        run: echo "key=arch-${{ hashFiles('build/arch/**', 'build/build-arch.sh', 'build/state.mjs') }}-$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
 
       - id: cache
         uses: actions/cache@v4
@@ -49,10 +49,20 @@ jobs:
       - name: Assemble site
         run: |
           mkdir _site
-          rsync -a --exclude .git --exclude .github --exclude build --exclude arch-image --exclude node_modules ./ _site/
+          rsync -a --exclude _site --exclude .git --exclude .github --exclude build --exclude arch-image --exclude node_modules ./ _site/
           if [ -f arch-image/fs.json ]; then cp -r arch-image _site/arch; fi
           touch _site/.nojekyll
           du -sh _site; ls _site _site/arch 2>/dev/null | head -20
+
+      - name: Test the page in a real browser
+        if: hashFiles('_site/arch/fs.json') != ''
+        continue-on-error: true
+        run: |
+          npm i --no-save --silent playwright@1.56.1
+          npx playwright install --with-deps chromium > /dev/null
+          (cd _site && python3 -m http.server 8000 > /dev/null 2>&1 &)
+          sleep 1
+          timeout 15m node build/test-page.mjs http://localhost:8000/
 
       - uses: actions/upload-pages-artifact@v3
         with:
