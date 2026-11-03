@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linux Sandbox | LDB Lab</title>
+<meta name="description" content="A real Linux system running inside your browser. Practise commands with guided lessons; nothing can touch your computer.">
+<meta name="theme-color" content="#0B0C0D">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Linux Sandbox | LDB Lab">
+<meta property="og:description" content="A real Linux system running inside your browser, with guided lessons. Break anything; reset in a second.">
+<meta property="og:image" content="https://ldiazbusquets.github.io/linux/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --bg: #0B0C0D; --ink: #F2F4F5; --soft: #A3ADB4; --dim: #8A949B; --line: rgba(255,255,255,.08); --line2: rgba(255,255,255,.14); --acc: #8FC3BA; --steel: #7ca9d4; --s1: #121415; --s2: #191C1E; --red: #F06262;
+  --sans: "Manrope", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace; }
+* { box-sizing: border-box; } [hidden] { display: none !important; }
+html, body { overflow-x: hidden; }
+html { -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+body { margin: 0; color: var(--soft); font: 400 16px/1.62 var(--sans); background: linear-gradient(180deg, #6E808E 0, #5B6C78 120px, #47545F 300px, #24292C 560px, #0B0C0D 820px) no-repeat, #0B0C0D; }
+a { color: var(--ink); } b, strong { color: var(--ink); font-weight: 600; } :focus-visible { outline: 2px solid var(--steel); outline-offset: 2px; }
+.w { max-width: 1280px; margin: 0 auto; padding: 0 22px; }
+.top { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; }
+.logo { display: inline-flex; align-items: center; gap: 9px; color: var(--ink); text-decoration: none; font: 600 16px var(--sans); letter-spacing: -.01em; } .logo span { font-weight: 400; color: rgba(242,244,245,.75); }
+.top nav a { color: rgba(242,244,245,.8); text-decoration: none; font-size: 14px; margin-left: 18px; } .top nav a:hover { color: #fff; }
+.eyebrow { font: 500 12px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: rgba(242,244,245,.75); margin: 30px 0 8px; }
+h1 { font: 300 clamp(40px, 6.5vw, 66px)/1.02 var(--sans); letter-spacing: -.04em; color: var(--ink); margin: 0; }
+.lede { font-size: 18px; color: rgba(242,244,245,.88); max-width: 70ch; margin: 16px 0 0; }
+.grid > div { min-width: 0; } #screen:focus { outline: none; box-shadow: inset 0 0 0 1px rgba(124,169,212,.35); }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; margin-top: 30px; align-items: start; } @media (max-width: 1020px) { .grid { grid-template-columns: 1fr; } }
+.win { background: #050607; border: 1px solid var(--line2); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 9px 12px; background: var(--s2); border-bottom: 1px solid var(--line); }
+.bar .ttl { font: 500 12px var(--mono); color: var(--dim); flex: 1; } .dot { width: 8px; height: 8px; border-radius: 50%; background: #5b6c78; } .dot.on { background: var(--acc); box-shadow: 0 0 8px var(--acc); }
+.tb { font: 500 12px var(--sans); color: var(--ink); background: rgba(255,255,255,.06); border: 1px solid var(--line2); border-radius: 999px; padding: 5px 11px; cursor: pointer; } .tb:hover { background: rgba(255,255,255,.12); } .tb.warn { color: var(--red); border-color: rgba(240,98,98,.4); }
+#screen { position: relative; padding: 14px 16px; min-height: 420px; overflow: auto; cursor: text; display: flex; justify-content: safe center; }
+#screen > div { white-space: pre; font: min(15px, 2.15vw)/1.0 var(--mono); color: #E6EBEF; letter-spacing: 0; }
+#screen > div span { font: inherit; } #screen canvas { display: none; max-width: 100%; }
+#screen.gfx > div { display: none; } #screen.gfx canvas { display: block; }
+.boot { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(5,6,7,.9); text-align: center; font: 500 13px var(--mono); color: var(--dim); }
+.boot b { display: block; font: 300 22px var(--sans); color: var(--ink); margin-bottom: 8px; } .boot .pb { width: 260px; height: 3px; background: rgba(255,255,255,.08); border-radius: 3px; margin: 14px auto 0; overflow: hidden; } .boot .pb i { display: block; height: 100%; width: 0; background: var(--steel); transition: width .3s; }
+.cmd { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); background: var(--s1); }
+.cmd input { flex: 1; min-width: 0; font: 400 14px var(--mono); color: var(--ink); background: #050607; border: 1px solid var(--line2); border-radius: 8px; padding: 8px 10px; }
+.card { background: rgba(18,20,21,.82); border: 1px solid var(--line2); border-radius: 14px; padding: 16px 18px; } .card + .card { margin-top: 14px; }
+.lab { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+.lessons { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; } .lesson { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.lesson > button { width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; font: 500 14.5px var(--sans); color: var(--ink); background: rgba(255,255,255,.02); border: 0; padding: 10px 12px; cursor: pointer; }
+.lesson > button i { font-style: normal; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font: 500 11px var(--mono); background: rgba(255,255,255,.08); color: var(--dim); flex: none; }
+.lesson.done > button i { background: var(--acc); color: #0B0C0D; } .lesson.open > button { background: rgba(124,169,212,.1); }
+.lesson .body { display: none; padding: 4px 12px 12px; font-size: 14px; } .lesson.open .body { display: block; }
+.step { margin-top: 10px; } .step p { margin: 0 0 6px; } .run { display: flex; align-items: center; gap: 8px; } .run code { flex: 1; font: 400 13px var(--mono); color: var(--ink); background: #050607; border: 1px solid var(--line); border-radius: 7px; padding: 6px 9px; overflow-x: auto; white-space: nowrap; }
+.run button { font: 500 12px var(--sans); color: #0B0C0D; background: var(--steel); border: 0; border-radius: 999px; padding: 5px 11px; cursor: pointer; white-space: nowrap; } .run button:hover { background: #a9c8e6; }
+.lesson .next { margin-top: 12px; font: 500 12.5px var(--sans); color: var(--ink); background: rgba(143,195,186,.15); border: 1px solid rgba(143,195,186,.5); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+table.cheat { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 8px; } .cheat td { padding: 5px 4px; border-top: 1px solid var(--line); vertical-align: top; } .cheat td:first-child { font: 400 12.5px var(--mono); color: var(--ink); white-space: nowrap; padding-right: 10px; }
+.note { font-size: 13px; color: var(--dim); margin: 10px 0 0; } kbd { font: 500 11px var(--mono); background: rgba(255,255,255,.08); border: 1px solid var(--line2); border-radius: 5px; padding: 1px 6px; color: var(--ink); }
+.prog { height: 4px; background: rgba(255,255,255,.08); border-radius: 4px; overflow: hidden; margin-top: 8px; } .prog i { display: block; height: 100%; background: var(--acc); width: 0; transition: width .4s; }
+footer { margin: 70px 0 40px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; color: var(--dim); font-size: 13px; }
+.toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: rgba(18,20,21,.96); border: 1px solid var(--line2); color: var(--ink); font: 400 13px var(--sans); padding: 9px 16px; border-radius: 999px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 30; } .toast.on { opacity: 1; }
+#screen:fullscreen { background: #050607; align-items: center; } #screen:fullscreen > div { font-size: 22px; }
+</style>
+</head>
+<body>
+<div class="w">
+  <header class="top">
+    <a class="logo" href="/lab/" aria-label="LDB Lab"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 9.5V4.8A1.8 1.8 0 0 1 4.8 3h4.7M14.5 21h4.7a1.8 1.8 0 0 0 1.8-1.8v-4.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg> LDB <span>Lab</span></a>
+    <nav><a href="/terminal/">AI Terminal</a><a href="/lab/">&larr; Lab</a></nav>
+  </header>
+  <p class="eyebrow">Workbench &middot; Linux</p>
+  <h1>Linux Sandbox</h1>
+  <p class="lede">A real Linux system booting inside this page. Type commands, make files, break things on purpose: it all lives in your browser&rsquo;s memory and can&rsquo;t touch your computer. Restart and it is brand new.</p>
+
+  <div class="grid">
+    <div>
+      <div class="win">
+        <div class="bar"><span class="dot" id="dot"></span><span class="ttl" id="ttl">linux &middot; starting&hellip;</span>
+          <button class="tb" id="ctrlc" type="button" title="Stop the running command">Ctrl+C</button><button class="tb" id="paste" type="button">Paste</button><button class="tb" id="save" type="button" title="Save this machine, files and all, in this browser">Save</button><button class="tb" id="load" type="button" hidden>Restore</button><button class="tb" id="full" type="button">Full screen</button><button class="tb warn" id="reset" type="button">Restart</button></div>
+        <div id="screen" tabindex="0" aria-label="Linux console: click and type"><div></div><canvas></canvas>
+          <div class="boot" id="boot"><div><b>Booting Linux&hellip;</b>loading the kernel into a virtual PC<div class="pb"><i id="bootbar"></i></div></div></div></div>
+        <div class="cmd"><input id="line" placeholder="Type a command and press Enter (or click the screen and type)" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="tb" id="send" type="button">Run</button></div>
+      </div>
+      <p class="note">Tips: click the black screen and type like a normal terminal, or use the box underneath (handy on phones). <kbd>Tab</kbd> completes names, <kbd>&uarr;</kbd> repeats commands, <kbd>Ctrl+C</kbd> stops one. <b>Save</b> keeps this exact machine in your browser so you can pick up later.</p>
+    </div>
+    <div>
+      <div class="card">
+        <span class="lab">Lessons</span>
+        <div class="prog"><i id="progbar"></i></div>
+        <div class="lessons" id="lessons"></div>
+      </div>
+      <div class="card">
+        <span class="lab">Cheat sheet</span>
+        <table class="cheat">
+          <tr><td>pwd</td><td>where am I</td></tr><tr><td>ls -la</td><td>list everything, with details</td></tr><tr><td>cd dir</td><td>go into a folder (<code>cd ..</code> up, <code>cd ~</code> home)</td></tr>
+          <tr><td>mkdir / touch</td><td>make a folder / an empty file</td></tr><tr><td>cp, mv, rm</td><td>copy, move or rename, delete</td></tr><tr><td>cat, head, tail</td><td>show a file, its start, its end</td></tr>
+          <tr><td>grep word file</td><td>find lines containing a word</td></tr><tr><td>a | b</td><td>send a&rsquo;s output into b</td></tr><tr><td>&gt; / &gt;&gt;</td><td>write / append output to a file</td></tr>
+          <tr><td>chmod +x f</td><td>make a file runnable</td></tr><tr><td>ps, kill</td><td>see and stop programs</td></tr><tr><td>man? help</td><td>this tiny Linux has <code>--help</code> on most commands</td></tr>
+        </table>
+      </div>
+      <div class="card"><span class="lab">What this machine is</span>
+        <p class="note" style="color:var(--soft);font-size:14px">A virtual 32-bit PC (the <a href="https://github.com/copy/v86">v86</a> emulator, compiled to WebAssembly) booting a small Buildroot Linux with BusyBox: the same shell and core commands as Ubuntu or a server, minus a package manager and internet. Big distributions work the same way; this one just starts in seconds.</p></div>
+    </div>
+  </div>
+  <footer><span>LDB Lab &middot; Linux Sandbox</span><span>v86 (BSD) &middot; SeaBIOS (LGPL) &middot; Buildroot Linux image from <a href="https://github.com/copy/images">copy/images</a> (GPL)</span></footer>
+</div>
+<div class="toast" id="toast"></div>
+<script src="v86/libv86.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); }, emu = null, ready = false, tt;
+  function toast(m) { $('toast').textContent = m; $('toast').classList.add('on'); clearTimeout(tt); tt = setTimeout(function () { $('toast').classList.remove('on'); }, 2400); }
+  var LESSONS = [
+    ['Where am I?', 'Linux is one big tree of folders starting at <code>/</code>. Your shell always sits in one of them.', [['Print the folder you are in', 'pwd'], ['List what is here, including hidden files', 'ls -la'], ['Jump to the very top of the tree', 'cd /'], ['Look around', 'ls'], ['Go back home (the ~ means your home folder)', 'cd ~ && pwd']]],
+    ['Files and folders', 'Make things, copy them, rename them, delete them. Nothing here is real, so experiment freely.', [['Make a folder and step into it', 'mkdir projects && cd projects'], ['Write a line into a new file', 'echo "hello linux" > notes.txt'], ['Read it back', 'cat notes.txt'], ['Copy it, then rename the copy', 'cp notes.txt backup.txt && mv backup.txt old.txt && ls'], ['Delete the old one', 'rm old.txt && ls -l']]],
+    ['Reading files', 'Most of Linux&rsquo;s settings are plain text files. These commands let you peek inside.', [['The list of users on this machine', 'cat /etc/passwd'], ['Just the first 3 lines', 'head -n 3 /etc/passwd'], ['Count its lines, words and characters', 'wc /etc/passwd'], ['Page through a long file (press q to quit)', 'less /etc/services']]],
+    ['Searching', 'Find text inside files, and find files by name.', [['Lines that mention root', 'grep root /etc/passwd'], ['Every file ending in .conf (errors hidden)', 'find / -name "*.conf" 2>/dev/null'], ['Count how many programs are in /bin', 'ls /bin | wc -l']]],
+    ['Pipes and redirection', 'The | sends one command&rsquo;s output into the next. &gt; writes to a file, &gt;&gt; adds to the end.', [['Sort a list', 'printf "pear\\napple\\nfig\\napple\\n" | sort'], ['Sort and drop duplicates', 'printf "pear\\napple\\nfig\\napple\\n" | sort | uniq'], ['Save, then append to a file', 'date > log.txt && echo "second line" >> log.txt && cat log.txt']]],
+    ['Permissions and scripts', 'Every file says who may read, write or run it. Make your own little program.', [['Write a two-line script', 'printf "#!/bin/sh\\necho Hi from my script, $(whoami)\\n" > hi.sh && cat hi.sh'], ['See its permissions (no x yet)', 'ls -l hi.sh'], ['Make it runnable', 'chmod +x hi.sh && ls -l hi.sh'], ['Run it', './hi.sh']]],
+    ['Processes', 'Every running program is a process with an ID. You can list them and stop them.', [['Start a long sleep in the background', 'sleep 300 &'], ['See what is running', 'ps'], ['Stop the background job', 'kill %1 && jobs'], ['Live view of processes (press q to quit)', 'top']]],
+    ['The system', 'Ask the machine about itself.', [['Kernel and CPU type', 'uname -a'], ['Memory in use', 'free'], ['Disk space', 'df -h'], ['The CPU it thinks it has', 'cat /proc/cpuinfo | head'], ['How long it has been up', 'uptime']]],
+    ['Editing with vi', 'vi is on almost every Linux machine. It has modes: press <kbd>i</kbd> to type, <kbd>Esc</kbd> to stop typing, then <code>:wq</code> and Enter to save and quit (<code>:q!</code> quits without saving).', [['Open a file in vi', 'vi notes.txt'], ['After saving, check your change', 'cat notes.txt']]],
+    ['Shell scripting', 'The shell is a programming language too: variables, loops and conditions.', [['A variable', 'name=Linux; echo "Hello, $name"'], ['A loop', 'for i in 1 2 3 4 5; do echo "line $i"; done'], ['A condition', 'if [ -f notes.txt ]; then echo "notes exist"; else echo "no notes"; fi'], ['Maths', 'echo $(( 6 * 7 ))']]],
+    ['Break it (safely)', 'The best part of a sandbox: things you should never do on a real machine. Press Restart afterwards.', [['Delete every file in /bin (programs stop working)', 'rm -rf /bin/*'], ['Try a command now', 'ls']]]
+  ];
+  var done = {}; try { done = JSON.parse(localStorage.getItem('linux.done') || '{}'); } catch (e) {}
+  function prog() { var n = Object.keys(done).length; $('progbar').style.width = (100 * n / LESSONS.length) + '%'; }
+  var L = $('lessons');
+  LESSONS.forEach(function (ls, k) {
+    var d = document.createElement('div'); d.className = 'lesson' + (done[k] ? ' done' : '') + (k === 0 ? ' open' : '');
+    var h = '<button type="button"><i>' + (k + 1) + '</i>' + ls[0] + '</button><div class="body"><p>' + ls[1] + '</p>';
+    ls[2].forEach(function (s) { h += '<div class="step"><p>' + s[0] + '</p><div class="run"><code></code><button type="button">Run</button></div></div>'; });
+    d.innerHTML = h + '<button class="next" type="button">Done &middot; next lesson</button></div>';
+    d.querySelectorAll('.step').forEach(function (st, j) { st.querySelector('code').textContent = ls[2][j][1]; st.querySelector('button').onclick = function () { send(ls[2][j][1]); }; });
+    d.firstChild.onclick = function () { var o = d.classList.contains('open'); L.querySelectorAll('.lesson').forEach(function (x) { x.classList.remove('open'); }); if (!o) d.classList.add('open'); };
+    d.querySelector('.next').onclick = function () { done[k] = 1; try { localStorage.setItem('linux.done', JSON.stringify(done)); } catch (e) {} d.classList.add('done'); d.classList.remove('open'); var n = L.children[k + 1]; if (n) n.classList.add('open'); prog(); };
+    L.appendChild(d);
+  });
+  prog();
+  function send(text) { if (!ready) { toast('Still booting, one moment.'); return; } emu.keyboard_send_text(text + '\n'); $('screen').focus(); }
+  function boot(state) {
+    ready = false; $('boot').hidden = false; $('dot').classList.remove('on'); $('ttl').textContent = 'linux · starting…';
+    var cfg = { wasm_path: 'v86/v86.wasm', memory_size: 64 * 1024 * 1024, vga_memory_size: 2 * 1024 * 1024, screen_container: $('screen'), bios: { url: 'v86/seabios.bin' }, vga_bios: { url: 'v86/vgabios.bin' }, cdrom: { url: 'v86/linux.iso' }, autostart: true, disable_speaker: true };
+    if (state) cfg.initial_state = { buffer: state };
+    emu = new V86(cfg);
+    emu.add_listener('download-progress', function (e) { if (e.lengthComputable) $('bootbar').style.width = Math.round(100 * e.loaded / e.total) + '%'; });
+    emu.add_listener('screen-set-mode', function (gfx) { $('screen').classList.toggle('gfx', !!gfx); });
+    var started = Date.now(), check = setInterval(function () {
+      var t = $('screen').firstChild.innerText || '';
+      if (/% $|# $|\$ $/m.test(t.replace(/\s+$/, ' ')) || state || Date.now() - started > 25000) { clearInterval(check); ready = true; $('boot').hidden = true; $('dot').classList.add('on'); $('ttl').textContent = 'root@sandbox · Linux 2.6 · BusyBox'; $('screen').focus(); }
+    }, 300);
+  }
+  $('screen').addEventListener('click', function () { $('screen').focus(); });
+  $('line').addEventListener('keydown', function (e) { if (e.key === 'Enter') { send(this.value); this.value = ''; } });
+  $('send').onclick = function () { send($('line').value); $('line').value = ''; };
+  $('ctrlc').onclick = function () { if (emu) emu.keyboard_send_scancodes([0x1D, 0x2E, 0xAE, 0x9D]); $('screen').focus(); };
+  $('paste').onclick = function () { (navigator.clipboard && navigator.clipboard.readText ? navigator.clipboard.readText() : Promise.reject()).then(function (t) { if (t) emu.keyboard_send_text(t); }, function () { toast('Paste with Ctrl+V in the box under the screen.'); }); };
+  $('full').onclick = function () { var s = $('screen'); (s.requestFullscreen || s.webkitRequestFullscreen).call(s); s.focus(); };
+  $('reset').onclick = function () { if (!confirm('Restart the machine? Anything not saved is wiped.')) return; emu.destroy && emu.destroy(); $('screen').firstChild.innerHTML = ''; boot(); };
+  /* save the whole machine (memory, disk, everything) into this browser */
+  function db() { return new Promise(function (ok, no) { var r = indexedDB.open('linux-sandbox', 1); r.onupgradeneeded = function () { r.result.createObjectStore('s'); }; r.onsuccess = function () { ok(r.result); }; r.onerror = no; }); }
+  function put(v) { return db().then(function (d) { return new Promise(function (ok, no) { var t = d.transaction('s', 'readwrite'); t.objectStore('s').put(v, 'state'); t.oncomplete = ok; t.onerror = no; }); }); }
+  function get() { return db().then(function (d) { return new Promise(function (ok) { var r = d.transaction('s').objectStore('s').get('state'); r.onsuccess = function () { ok(r.result); }; r.onerror = function () { ok(null); }; }); }); }
+  $('save').onclick = function () { if (!ready) return; Promise.resolve(emu.save_state()).then(function (st) { return put(st); }).then(function () { $('load').hidden = false; toast('Saved this machine in your browser'); }, function () { toast('Could not save here (private window?)'); }); };
+  $('load').onclick = function () { get().then(function (st) { if (!st) { toast('No saved machine yet.'); return; } emu.destroy && emu.destroy(); $('screen').firstChild.innerHTML = ''; boot(st); toast('Restored your saved machine'); }); };
+  get().then(function (st) { if (st) $('load').hidden = false; }).catch(function () {});
+  boot();
+  window.__linux = { get emu() { return emu; }, get ready() { return ready; } };
+})();
+</script>
+</body>
+</html>
