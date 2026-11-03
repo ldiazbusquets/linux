@@ -17,11 +17,10 @@ mkdir -p "$R/etc/pacman.d"
 : > /tmp/mirrorlist32
 for m in "${OK[@]}"; do echo "Server = $m/\$arch/\$repo" >> /tmp/mirrorlist32; done
 conf() { # $1 = SigLevel, $2 = mirrorlist path
-  printf '[options]\nArchitecture = i686\nHoldPkg = pacman glibc\nCheckSpace\nColor\nILoveCandy\nParallelDownloads = 6\nSigLevel = %s\nLocalFileSigLevel = Optional\n' "$1"
+  printf '[options]\nArchitecture = i686\nHoldPkg = pacman glibc\nColor\nILoveCandy\nParallelDownloads = 6\nSigLevel = %s\nLocalFileSigLevel = Optional\n' "$1"
   for r in "${REPOS[@]}"; do printf '\n[%s]\nInclude = %s\n' "$r" "$2"; done
 }
 conf Never /tmp/mirrorlist32 > /tmp/pacman32.conf
-sed -i 's/^CheckSpace/#CheckSpace/' /tmp/pacman32.conf
 
 # Our boot hook, initramfs config and preset go in first so the kernel install uses them.
 install -Dm644 "$B/9p_root.hook" "$R/etc/initcpio/hooks/9p_root"
