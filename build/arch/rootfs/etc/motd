@@ -1,0 +1,8 @@
+
+  Arch Linux (i686) running inside your browser.
+  Nothing here can touch your computer: break it, then press Reset.
+
+  You are "arch" (password arch), with sudo. root's password is root.
+  Try:  fastfetch   ls /   man ls   htop   pacman -Ss python   python
+  Internet: turn on Network in the top bar, then run  net-up
+

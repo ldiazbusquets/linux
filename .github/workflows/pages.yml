@@ -1,0 +1,69 @@
+name: Build Arch and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 1 * *" # refresh Arch packages monthly
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: key
+        run: echo "key=arch-${{ hashFiles('build/**') }}-$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+
+      - id: cache
+        uses: actions/cache@v4
+        with:
+          path: arch-image
+          key: ${{ steps.key.outputs.key }}
+
+      - name: Build Arch Linux 32 image
+        if: steps.cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq python3-zstandard zstd
+          bash build/build-arch.sh arch-image
+
+      - name: Boot it once and save a snapshot
+        if: hashFiles('arch-image/fs.json') != '' && hashFiles('arch-image/state.bin.zst') == ''
+        continue-on-error: true
+        run: |
+          npm i --no-save --silent v86@0.5.473
+          node build/state.mjs arch-image v86
+
+      - name: Assemble site
+        run: |
+          mkdir _site
+          rsync -a --exclude .git --exclude .github --exclude build --exclude arch-image --exclude node_modules ./ _site/
+          if [ -f arch-image/fs.json ]; then cp -r arch-image _site/arch; fi
+          touch _site/.nojekyll
+          du -sh _site; ls _site _site/arch 2>/dev/null | head -20
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
